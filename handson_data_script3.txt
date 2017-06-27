@@ -1,0 +1,78 @@
+## セッション情報を取得する
+sessionInfo();
+
+## RgoogleMapsパッケージをインストールする
+install.packages("RgoogleMaps");
+
+## パッケージを読み込む
+library(ibmdbR);
+library(RgoogleMaps);
+
+##ＧＰＳ情報と拡大率を指定する
+geo_point <- t(getGeoCode('new york,ny'));
+c_lat = geo_point[1];
+c_lon = geo_point[2];
+c_zoom=11;
+
+## dashDBに接続
+con<-idaConnect("BLUDB");
+idaInit(con);
+
+## dashDBからデータを読み込む
+df <- idaQuery("select pickup_longitude,pickup_latitude,
+          (select case 
+               db2gse.st_contains(
+                   geo_data, 
+                   db2gse.st_point(
+                       pickup_longitude,
+                       pickup_latitude,
+                       1003
+                   )
+               ) 
+               when 1 then 'red'
+               else        'green'
+               end                           
+               from usmap where name_2 = 'New York') DISTRICT 
+               from nyctaxi"
+               ,as.is=F);
+
+## 正しく読み込まれたか確認する
+head(df);
+
+## 各列に格納されている数値をベクトルに変換する
+lon <- as.vector(df[,1])
+lat <- as.vector(df[,2])
+col <- as.vector(df[,3]) 
+
+# マップの中心となる地点を指定
+center = c(mean(lat), mean(lon));
+if((c_lat!=0)&&(c_lon!=0)){
+  center = c(c_lat, c_lon);
+}
+
+## ズーム倍率を指定
+zoom <- min(MaxZoom(range(lat), range(lon)));
+if(c_zoom!=0){
+  zoom <- c_zoom
+}
+
+## マップを作成する
+MyMap <- GetMap.bbox(size = c(640,640),
+                     center=center, zoom=zoom,
+                     destfile = "./nyctaxi.png",
+                     GRAYSCALE =F,
+                     maptype="roadmap"
+);
+
+## 画像を生成する
+tmp <- PlotOnStaticMap(MyMap,
+                       lat = lat,
+                       lon = lon,
+                       size = c(640,640),
+                       destfile = "./nyctaxi.png",
+                       cex=0.5,
+                       pch=20,
+                       col=col,
+                       add=FALSE,
+                       NEWMAP = FALSE
+);

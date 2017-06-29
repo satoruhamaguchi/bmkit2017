@@ -1,0 +1,16 @@
+select
+  int(double(NY.CNT)/double(ALL.CNT)*100) "New York乗車率",
+  NY.CNT "New York乗車件数",
+  ALL.CNT "全体乗車件数"
+FROM
+  (select count(*) cnt from nyctaxi) ALL,
+  (select count(*) cnt
+from usmap u, nyctaxi t 
+where 
+  u.name_2 = 'New York' and
+  db2gse.st_contains(
+          geo_data, 
+          db2gse.st_point(pickup_longitude,pickup_latitude,1003)
+  ) = 1
+) NY
+;

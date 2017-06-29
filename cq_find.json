@@ -1,9 +1,0 @@
-{
-  "selector": {
-    "cost": {"$gt": 3000}
-  },
-  "fields": ["_id", "_rev", "type", "cost"],
-  "sort": [{"cost": "desc"}],
-  "limit": 10,
-  "skip": 0
-}

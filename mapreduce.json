@@ -1,9 +1,0 @@
-{
-  "_id": "_design/ddoc1",
-  "views": {
-    "view1": {
-      "map": "function(doc){emit(doc.type, doc.cost)}",
-      "reduce": "function(keys, values, rereduce){return sum(values)}"
-    }
-  }
-}

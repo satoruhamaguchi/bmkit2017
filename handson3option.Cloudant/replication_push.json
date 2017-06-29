@@ -1,0 +1,6 @@
+{
+  "source": "https://<ユーザー名>:<パスワード>@<ユーザー名>.cloudant.com/handsondb1",
+  "target": "https://<ユーザー名>:<パスワード>@<ユーザー名>.cloudant.com/handsondb2",
+  "create_target": true,
+  "continuous": false
+}

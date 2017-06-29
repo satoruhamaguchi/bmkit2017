@@ -1,1 +1,0 @@
-select geo_data from usmap where name_2 = 'New York';

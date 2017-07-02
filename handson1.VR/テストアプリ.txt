@@ -1,0 +1,152 @@
+[
+    {
+        "id": "433fd366.f2b074",
+        "type": "tab",
+        "label": "フロー 1"
+    },
+    {
+        "id": "e2cf5b8b.ddcb",
+        "type": "http in",
+        "z": "433fd366.f2b074",
+        "name": "",
+        "url": "/face",
+        "method": "get",
+        "swaggerDoc": "",
+        "x": 110,
+        "y": 119.25,
+        "wires": [
+            [
+                "29acfd66.04eb0a"
+            ]
+        ]
+    },
+    {
+        "id": "29acfd66.04eb0a",
+        "type": "switch",
+        "z": "433fd366.f2b074",
+        "name": "check image url",
+        "property": "payload.imageurl",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "null"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "outputs": 2,
+        "x": 272,
+        "y": 177.75,
+        "wires": [
+            [
+                "8c1e8fd7.d95de"
+            ],
+            [
+                "f01b431b.c37a7"
+            ]
+        ]
+    },
+    {
+        "id": "8c1e8fd7.d95de",
+        "type": "template",
+        "z": "433fd366.f2b074",
+        "name": "HTML PAGE",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "<h1>Watson Visual Recognition Face Detection app</h1>\n<H2>誰の画像を解析しますか？</H2>\n<form  action=\"{{req._parsedUrl.pathname}}\">\n    <img src=\"https://nodered.jp/images/kojo.jpg\" height='150' onclick=\"setImgURL('https://nodered.jp/images/kojo.jpg');\"/>\n    <img src=\"https://nodered.jp/images/seigo.jpg\" height='150' onclick=\"setImgURL('https://nodered.jp/images/seigo.jpg');\"/>\n    <img src=\"https://nodered.jp/images/hagino.jpg\" height='150' onclick=\"setImgURL('https://nodered.jp/images/hagino.jpg');\"/>\n    <img src=\"https://nodered.jp/images/yokoi.jpg\" height='150' onclick=\"setImgURL('https://nodered.jp/images/yokoi.jpg');\"/>\n    <img src=\"https://nodered.jp/images/oohira.jpg\" height='150' onclick=\"setImgURL('https://nodered.jp/images/oohira.jpg');\"/>\n    <img src=\"https://nodered.jp/images/wentz.jpg\" height='150' onclick=\"setImgURL('https://nodered.jp/images/wentz.jpg');\"/>\n        <br/>上の画像をクリックすると画像のURLがコピーされます。<br>または任意の画像URLを下の”画像URL”へ入力します。<br>最後に”解析する”ボタンを押してください。<br/>\n    <br>画像URL: <input type=\"text\" name=\"imageurl\" id=\"imageurl\"/>\n    <input type=\"submit\" value=\"解析する\"/>\n</form>\n\n<script>\nfunction setImgURL(imageUrl){\n    document.getElementById('imageurl').value=imageUrl;\n}\n</script>",
+        "x": 463,
+        "y": 120.75,
+        "wires": [
+            [
+                "919850a8.c2e468"
+            ]
+        ]
+    },
+    {
+        "id": "f01b431b.c37a7",
+        "type": "change",
+        "z": "433fd366.f2b074",
+        "name": "Extract image URL",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "payload.imageurl",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 203,
+        "y": 367.75,
+        "wires": [
+            [
+                "67866160.6641c8"
+            ]
+        ]
+    },
+    {
+        "id": "67866160.6641c8",
+        "type": "visual-recognition-v3",
+        "z": "433fd366.f2b074",
+        "name": "",
+        "apikey": "__PWRD__",
+        "image-feature": "detectFaces",
+        "lang": "en",
+        "x": 311,
+        "y": 452.5,
+        "wires": [
+            [
+                "aced27d5.30f088",
+                "84f3d207.404f5"
+            ]
+        ]
+    },
+    {
+        "id": "84f3d207.404f5",
+        "type": "template",
+        "z": "433fd366.f2b074",
+        "name": "Report faces via HTML template",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "<h1>Visual Recognition v3 Image Analysis</h1>\n<p>解析画像: {{result.images.0.resolved_url}}<br/><img id=\"image\" src=\"{{result.images.0.resolved_url}}\" height=\"200\"/></p>\n{{^result}}\n    <P>顔認識できませんでした</P>\n{{/result}}\n<!-- <p>Images Processed: {{result.images_processed}}</p> -->\n<table border='1'>\n    <thead><tr><th>年齢</th><th>確信度</th><th>性別</th><th>確信度</th><th>名前(著名人の場合)</th><th>確信度</th></tr></thead>\n    {{#result.images.0.faces}}<tr>\n        <td><b>{{age.min}} - {{age.max}}</b></td><td><i>{{age.score}}</i></td>\n        <td>{{gender.gender}}</td><td>{{gender.score}}</td>\n        <td>{{identity.name}}</td><td>{{identity.score}}</td>\n    </tr>{{/result.images.0.faces}}\n</table>\n<form  action=\"{{req._parsedUrl.pathname}}\">\n    <br><input type=\"submit\" value=\"戻る\"/>\n</form>",
+        "x": 472,
+        "y": 325.75,
+        "wires": [
+            [
+                "919850a8.c2e468"
+            ]
+        ]
+    },
+    {
+        "id": "919850a8.c2e468",
+        "type": "http response",
+        "z": "433fd366.f2b074",
+        "name": "",
+        "x": 562,
+        "y": 235.5,
+        "wires": []
+    },
+    {
+        "id": "aced27d5.30f088",
+        "type": "debug",
+        "z": "433fd366.f2b074",
+        "name": "",
+        "active": true,
+        "console": "false",
+        "complete": "false",
+        "x": 507,
+        "y": 509.5,
+        "wires": []
+    }
+]
